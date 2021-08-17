@@ -439,7 +439,7 @@ y_pred = naive_qualidade_agua.predict(X_test)
 # Model Accuracy, how often is the classifier correct?
 print(metrics.classification_report(y_test,y_pred))
 
-"""# Naive Bayes - Teste(1/4)/Treino(2/3)"""
+"""# Naive Bayes - Teste(1/4)/Treino(3/4)"""
 
 #treinamento do algoritmo
 
@@ -483,3 +483,54 @@ kfold  = KFold(n_splits=10, shuffle=True) # shuffle=True, Shuffle (embaralhar) t
 cv_scores = cross_val_score(naive_qualidade_agua_validacao_cruzada,X_test, y_test, cv=kfold)
 
 print('Mean cross-validation score: {:.3f}'.format(np.mean(cv_scores)))
+
+
+
+"""# Tarefa 2 - Árvore de Decisão
+
+#  Utilizando teste(1/3) e treino (2/3)
+"""
+
+# teste (1/3)/treino(2/3)
+from sklearn.model_selection import train_test_split
+# Divisão do conjunto de dados 
+X_train, X_test, y_train, y_test = train_test_split(X_elementos_agua, y_elementos_agua,test_size=0.3,train_size=0.6,random_state=0)
+
+#verificar dimensões dos subconjuntos
+X_train.shape, X_test.shape, y_train.shape, y_test.shape
+
+from sklearn import tree
+
+#modelDT = tree.DecisionTreeClassifier() #critérios default
+modelDT = tree.DecisionTreeClassifier(criterion="entropy", min_samples_split=35,max_depth=4)
+modelDT = modelDT.fit(X_train, y_train)
+
+#Predict the response for test dataset
+y_pred = modelDT.predict(X_test)
+
+# Model Accuracy, how often is the classifier correct?
+print(metrics.classification_report(y_test,y_pred))
+
+plot_confusion_matrix(modelDT, X_test, y_test,values_format='d')
+
+#Curva ROC  
+metrics.plot_roc_curve(modelDT, X_test, y_test)
+
+"""# Tuning de parâmetros com Grid Search
+
+
+"""
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import GridSearchCV
+
+parametros = {'criterion':['gini','entropy'],'splitter':['best','random'],
+'min_samples_split':[2,5,10],'min_samples_leaf':[1,5,10]}
+
+grid = GridSearchCV(DecisionTreeClassifier(), param_grid=parametros, cv=5)
+grid.fit(X_train, y_train)
+
+melhores_parametros=grid.best_params_
+melhor_resultado=grid.best_score_
+print(melhores_parametros)
+print(melhor_resultado)
